@@ -17,4 +17,3 @@ class ReadOnly(permissions.BasePermission):
 
 class NotSelfFollow(permissions.BasePermission):
     message = 'Нельзя подписаться на себя!'
-      

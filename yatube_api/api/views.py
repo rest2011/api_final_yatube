@@ -1,17 +1,25 @@
 from django.shortcuts import get_object_or_404
 
-from rest_framework import viewsets
+from rest_framework import viewsets, filters
+from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticated
 
-from .permissions import IsAuthorOrReadOnly, ReadOnly, NotSelfFollow
-from .serializers import CommentSerializer, GroupSerializer, PostSerializer, FollowSerializer
-from posts.models import Group, Post, Follow
+from .permissions import IsAuthorOrReadOnly, ReadOnly
+from .serializers import (CommentSerializer, GroupSerializer,
+                          PostSerializer, FollowSerializer)
+from posts.models import Group, Post
 
 
 class PostViewSet(viewsets.ModelViewSet):
-    queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = (IsAuthorOrReadOnly, IsAuthenticated)
+    pagination_class = None
+
+    def get_queryset(self):
+        if self.kwargs.get('limit') and self.kwargs.get('offset'):
+            self.pagination_class = LimitOffsetPagination
+        self.pagination_class = None
+        return Post.objects.all()
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
@@ -39,12 +47,13 @@ class CommentViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.request.method in 'GET, HEAD':
             return (ReadOnly(),)
-        return super().get_permissions()        
+        return super().get_permissions()
 
 
-class GroupViewSet(viewsets.ModelViewSet):
+class GroupViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
+    pagination_class = None
 
     def get_permissions(self):
         if self.request.method in 'GET, HEAD':
@@ -52,30 +61,14 @@ class GroupViewSet(viewsets.ModelViewSet):
         return super().get_permissions()
 
 
-class GroupViewSet(viewsets.ModelViewSet):
-    queryset = Group.objects.all()
-    serializer_class = GroupSerializer
-
-    def get_permissions(self):
-        if self.request.method in 'GET, HEAD':
-            return (ReadOnly(),)
-        return super().get_permissions()        
-
-
 class FollowViewSet(viewsets.ModelViewSet):
     serializer_class = FollowSerializer
     pagination_class = None
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('following__username',)
 
     def get_queryset(self):
-        return self.request.user.follower              
+        return self.request.user.follower
 
     def perform_create(self, serializer):
-        if self.request.user != 'parovozik':
-            serializer.save(user=self.request.user)
-        else:
-            return "Ошибка!"
-
-    # def get_permissions(self):
-    #     if self.request.user == self.request.query_params.get('following') :
-    #         return (NotSelfFollow(),)
-    #     return super().get_permissions()          
+        serializer.save(user=self.request.user)
