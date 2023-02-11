@@ -11,15 +11,10 @@ from posts.models import Group, Post
 
 
 class PostViewSet(viewsets.ModelViewSet):
+    queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = (IsAuthorOrReadOnly, IsAuthenticated)
-    pagination_class = None
-
-    def get_queryset(self):
-        if self.kwargs.get('limit') and self.kwargs.get('offset'):
-            self.pagination_class = LimitOffsetPagination
-        self.pagination_class = None
-        return Post.objects.all()
+    pagination_class = LimitOffsetPagination
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
