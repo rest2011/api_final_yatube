@@ -43,12 +43,8 @@ class GroupViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = None
 
 
-class CreateListViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
-                        viewsets.GenericViewSet):
-    pass
-
-
-class FollowViewSet(CreateListViewSet):
+class FollowViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
+                    viewsets.GenericViewSet):
     serializer_class = FollowSerializer
     pagination_class = None
     filter_backends = (filters.SearchFilter,)
