@@ -1,6 +1,6 @@
-Проект api_final_yatube
+## Проект api_final_yatube
 
-Как запустить проект:
+## Как запустить проект
 
 Клонировать репозиторий и перейти в него в командной строке:
 
@@ -24,3 +24,6 @@ python manage.py migrate
 Запустить проект:
 
 python manage.py runserver
+
+## Автор 
+Хаматьяров Ринат github.com/rest2011
