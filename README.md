@@ -32,4 +32,4 @@ python manage.py migrate
 python manage.py runserver
 
 ## Автор 
-Хаматьяров Ринат github.com/rest2011
+Ринат Хаматьяров (https://github.com/rest2011)
